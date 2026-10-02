@@ -240,13 +240,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                   {language === 'bn' ? '১. আপনার অ্যাকাউন্ট নির্বাচন করুন:' : '1. Select Your Account:'}
                 </label>
                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {allUsers.filter(u => u.status === 'ACTIVE').map(user => {
+                  {allUsers.map(user => {
                     const isSelected = selectedUserId === user.id;
+                    const isPending = user.status === 'PENDING';
+                    const isInactive = user.status === 'INACTIVE';
+                    
                     return (
                       <button
                         key={user.id}
                         type="button"
                         onClick={() => {
+                          if (isInactive) return;
                           setSelectedUserId(user.id);
                           setLoginError(null);
                           setEnteredPin('');
@@ -255,7 +259,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                           isSelected
                             ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
                             : 'bg-white border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50/50'
-                        }`}
+                        } ${isInactive ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
@@ -272,20 +276,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                               {user.name}
                             </span>
                             <span className="text-[10px] text-emerald-700 block truncate">
-                              {user.designation} • {user.employeeId}
+                              {isPending 
+                                ? (language === 'bn' ? 'অনুমোদনের অপেক্ষায়...' : 'Pending Approval...')
+                                : (user.designation || user.employeeId)}
                             </span>
                           </div>
                         </div>
 
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
-                          user.role === 'ADMIN'
-                            ? 'bg-rose-100 text-rose-700'
-                            : user.role === 'TEACHER'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {user.role === 'ADMIN' ? 'অ্যাডমিন' : user.role === 'TEACHER' ? 'শিক্ষক' : 'কর্মচারী'}
-                        </span>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                            user.role === 'ADMIN'
+                              ? 'bg-rose-100 text-rose-700'
+                              : user.role === 'TEACHER'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {user.role === 'ADMIN' ? (language === 'bn' ? 'অ্যাডমিন' : 'Admin') : user.role === 'TEACHER' ? (language === 'bn' ? 'শিক্ষক' : 'Teacher') : (language === 'bn' ? 'কর্মচারী' : 'Staff')}
+                          </span>
+                          {isPending && (
+                            <span className="text-[8px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-black animate-pulse uppercase">
+                              {language === 'bn' ? 'অপেক্ষা করুন' : 'Pending'}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     );
                   })}

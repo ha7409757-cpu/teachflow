@@ -26,7 +26,8 @@ export const AdminAnalytics: React.FC = () => {
     classSessions,
     attendanceRecords,
     adminReports,
-    settings
+    settings,
+    language
   } = useApp();
 
   const [exportNotice, setExportNotice] = useState<string | null>(null);
@@ -70,10 +71,10 @@ export const AdminAnalytics: React.FC = () => {
       t.designation || '',
       t.department || '',
       t.phone || '',
-      t.isActive ? 'Active' : 'Inactive'
+      t.status
     ]);
     exportToCsv('teachflow-teachers.csv', headers, rows);
-    showNotice('Teachers CSV exported.');
+    showNotice(language === 'bn' ? 'শিক্ষক তালিকা এক্সপোর্ট সম্পন্ন হয়েছে।' : 'Teachers CSV exported.');
   };
 
   const handleExportRoutine = () => {
@@ -91,7 +92,7 @@ export const AdminAnalytics: React.FC = () => {
       r.substituteTeacherName || ''
     ]);
     exportToCsv('teachflow-routine.csv', headers, rows);
-    showNotice('Class Routine CSV exported.');
+    showNotice(language === 'bn' ? 'রুটিন এক্সপোর্ট সম্পন্ন হয়েছে।' : 'Class Routine CSV exported.');
   };
 
   const handleExportAttendance = () => {
@@ -110,7 +111,7 @@ export const AdminAnalytics: React.FC = () => {
       ];
     });
     exportToCsv('teachflow-attendance.csv', headers, rows);
-    showNotice('Staff Attendance CSV exported.');
+    showNotice(language === 'bn' ? 'হাজিরা রিপোর্ট এক্সপোর্ট সম্পন্ন হয়েছে।' : 'Staff Attendance CSV exported.');
   };
 
   const handleExportSessions = () => {
@@ -129,7 +130,7 @@ export const AdminAnalytics: React.FC = () => {
       s.durationMinutes?.toString() || ''
     ]);
     exportToCsv('teachflow-class-sessions.csv', headers, rows);
-    showNotice('Class Sessions log exported.');
+    showNotice(language === 'bn' ? 'ক্লাস সেশন লগ এক্সপোর্ট সম্পন্ন হয়েছে।' : 'Class Sessions log exported.');
   };
 
   const handleExportReports = () => {
@@ -146,7 +147,7 @@ export const AdminAnalytics: React.FC = () => {
       r.adminFeedback || ''
     ]);
     exportToCsv('teachflow-admin-reports.csv', headers, rows);
-    showNotice('Staff Reports CSV exported.');
+    showNotice(language === 'bn' ? 'রিপোর্ট এক্সপোর্ট সম্পন্ন হয়েছে।' : 'Staff Reports CSV exported.');
   };
 
   const showNotice = (msg: string) => {
@@ -155,178 +156,178 @@ export const AdminAnalytics: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 max-w-5xl mx-auto pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-200 pb-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-indigo-400" />
-            <span>School Performance Analytics & Data Export</span>
+          <h1 className="text-2xl font-extrabold text-emerald-950 tracking-tight flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-rose-600" />
+            <span>{language === 'bn' ? 'বিদ্যালয় পারফরম্যান্স ও ডাটা এক্সপোর্ট' : 'School Performance Analytics & Data Export'}</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Operational metrics, class delivery rates, faculty workloads, and CSV downloads.
+          <p className="text-xs text-emerald-700 mt-0.5">
+            {language === 'bn' ? 'প্রতিষ্ঠানিক পারফরম্যান্স ইন্ডিকেটর, ক্লাস সম্পন্ন হওয়ার হার এবং সিএসভি ডাউনলোড।' : 'Operational metrics, class delivery rates, faculty workloads, and CSV downloads.'}
           </p>
         </div>
       </div>
 
       {/* Export notification popup */}
       {exportNotice && (
-        <div className="p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-xs text-emerald-300 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="p-4 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 animate-in fade-in zoom-in duration-300">
+          <CheckCircle2 className="w-4 h-4 text-emerald-700" />
           <span>{exportNotice}</span>
         </div>
       )}
 
       {/* STATS TILES */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-            <span>Overall Attendance Rate</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mb-2">
+            <span>{language === 'bn' ? 'মোট উপস্থিতি হার' : 'Overall Attendance Rate'}</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-3xl font-black text-emerald-400">{overallAttendanceRate}%</div>
-          <p className="text-[11px] text-slate-500 mt-1">Faculty & staff combined</p>
+          <div className="text-3xl font-black text-emerald-700">{overallAttendanceRate}%</div>
+          <p className="text-[11px] text-emerald-600 mt-1 opacity-80">{language === 'bn' ? 'শিক্ষক ও কর্মচারী মিলিয়ে' : 'Faculty & staff combined'}</p>
         </div>
 
-        <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-            <span>Class Delivery Rate</span>
-            <Clock className="w-4 h-4 text-indigo-400" />
+        <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mb-2">
+            <span>{language === 'bn' ? 'ক্লাস ডেলিভারি হার' : 'Class Delivery Rate'}</span>
+            <Clock className="w-4 h-4 text-rose-600" />
           </div>
-          <div className="text-3xl font-black text-indigo-400">{completionRate}%</div>
-          <p className="text-[11px] text-slate-500 mt-1">Conducted on schedule</p>
+          <div className="text-3xl font-black text-rose-600">{completionRate}%</div>
+          <p className="text-[11px] text-emerald-600 mt-1 opacity-80">{language === 'bn' ? 'নির্ধারিত সময়ে সম্পন্ন' : 'Conducted on schedule'}</p>
         </div>
 
-        <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-            <span>Weekly Master Periods</span>
-            <Calendar className="w-4 h-4 text-amber-400" />
+        <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm">
+          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mb-2">
+            <span>{language === 'bn' ? 'সাপ্তাহিক পিরিয়ড' : 'Weekly Master Periods'}</span>
+            <Calendar className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-3xl font-black text-white">{totalScheduledClasses}</div>
-          <p className="text-[11px] text-slate-500 mt-1">Total periods per week</p>
+          <div className="text-3xl font-black text-emerald-950">{totalScheduledClasses}</div>
+          <p className="text-[11px] text-emerald-600 mt-1 opacity-80">{language === 'bn' ? 'মোট ক্লাস সংখ্যা' : 'Total periods per week'}</p>
         </div>
       </div>
 
       {/* CSV EXPORT CENTER */}
-      <section className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+      <section className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Download className="w-4 h-4 text-indigo-400" />
-              <span>Data Export & Archiving (CSV)</span>
+            <h3 className="text-sm font-black text-emerald-950 flex items-center gap-2 uppercase tracking-tight">
+              <Download className="w-4 h-4 text-rose-600" />
+              <span>{language === 'bn' ? 'ডাটা এক্সপোর্ট ও সংরক্ষণ (CSV)' : 'Data Export & Archiving (CSV)'}</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Download clean spreadsheet-ready records for official records or offline analysis.
+            <p className="text-xs text-emerald-700 mt-1">
+              {language === 'bn' ? 'অফিশিয়াল রেকর্ড বা অফলাইন বিশ্লেষণের জন্য স্প্রেডশিট ডাউনলোড করুন।' : 'Download clean spreadsheet-ready records for official records or offline analysis.'}
             </p>
           </div>
-          <span className="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3" />
-            <span>Privacy Compliant</span>
+          <span className="hidden sm:flex text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 items-center gap-1.5 shadow-inner">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>{language === 'bn' ? 'গোপনীয়তা সুরক্ষিত' : 'Privacy Compliant'}</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
           <button
             onClick={handleExportTeachers}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs font-semibold text-white transition-all text-left group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-black text-emerald-950 transition-all text-left group"
           >
-            <div className="flex items-center gap-2.5">
-              <FileSpreadsheet className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-rose-600 group-hover:scale-110 transition-transform" />
               <div>
-                <span className="block">Faculty Directory</span>
-                <span className="text-[10px] text-slate-400 font-normal">All teachers & departments</span>
+                <span className="block">{language === 'bn' ? 'শিক্ষক ডিরেক্টরি' : 'Faculty Directory'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold opacity-70">{language === 'bn' ? 'সকল শিক্ষক ও বিভাগ' : 'All teachers & depts'}</span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-emerald-400 group-hover:text-rose-600" />
           </button>
 
           <button
             onClick={handleExportRoutine}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs font-semibold text-white transition-all text-left group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-black text-emerald-950 transition-all text-left group"
           >
-            <div className="flex items-center gap-2.5">
-              <FileSpreadsheet className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-amber-600 group-hover:scale-110 transition-transform" />
               <div>
-                <span className="block">Master Routine Timetable</span>
-                <span className="text-[10px] text-slate-400 font-normal">Weekly class schedule</span>
+                <span className="block">{language === 'bn' ? 'মাস্টার রুটিন' : 'Master Routine'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold opacity-70">{language === 'bn' ? 'সাপ্তাহিক ক্লাস শিডিউল' : 'Weekly schedule'}</span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-emerald-400 group-hover:text-rose-600" />
           </button>
 
           <button
             onClick={handleExportAttendance}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs font-semibold text-white transition-all text-left group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-black text-emerald-950 transition-all text-left group"
           >
-            <div className="flex items-center gap-2.5">
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-emerald-600 group-hover:scale-110 transition-transform" />
               <div>
-                <span className="block">Staff Attendance Logs</span>
-                <span className="text-[10px] text-slate-400 font-normal">Check-ins & working hours</span>
+                <span className="block">{language === 'bn' ? 'স্টাফ হাজিরা লগ' : 'Staff Attendance Logs'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold opacity-70">{language === 'bn' ? 'চেক-ইন ও কাজের সময়' : 'Daily check-ins'}</span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-emerald-400 group-hover:text-rose-600" />
           </button>
 
           <button
             onClick={handleExportSessions}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs font-semibold text-white transition-all text-left group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-black text-emerald-950 transition-all text-left group"
           >
-            <div className="flex items-center gap-2.5">
-              <FileSpreadsheet className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-cyan-600 group-hover:scale-110 transition-transform" />
               <div>
-                <span className="block">Conducted Class Sessions</span>
-                <span className="text-[10px] text-slate-400 font-normal">Durations & start times</span>
+                <span className="block">{language === 'bn' ? 'ক্লাস সেশন রেকর্ড' : 'Class Session Records'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold opacity-70">{language === 'bn' ? 'শুরুর সময় ও ডিউরেশন' : 'Historical sessions'}</span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-emerald-400 group-hover:text-rose-600" />
           </button>
 
           <button
             onClick={handleExportReports}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs font-semibold text-white transition-all text-left group"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-xs font-black text-emerald-950 transition-all text-left group"
           >
-            <div className="flex items-center gap-2.5">
-              <FileSpreadsheet className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet className="w-5 h-5 text-purple-600 group-hover:scale-110 transition-transform" />
               <div>
-                <span className="block">Official Staff Reports</span>
-                <span className="text-[10px] text-slate-400 font-normal">Submissions & review notes</span>
+                <span className="block">{language === 'bn' ? 'অফিশিয়াল রিপোর্ট' : 'Official Staff Reports'}</span>
+                <span className="text-[10px] text-emerald-700 font-bold opacity-70">{language === 'bn' ? 'সকল টিচার রিপোর্ট' : 'Submissions & review'}</span>
               </div>
             </div>
-            <Download className="w-4 h-4 text-slate-400" />
+            <Download className="w-4 h-4 text-emerald-400 group-hover:text-rose-600" />
           </button>
         </div>
       </section>
 
       {/* TEACHER WORKLOAD DISTRIBUTION TABLE */}
-      <section className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Users className="w-4 h-4 text-indigo-400" />
-          <span>Teacher Workload & Routine Distribution</span>
+      <section className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm space-y-5">
+        <h3 className="text-sm font-black text-emerald-950 flex items-center gap-2 uppercase tracking-tight">
+          <Users className="w-4 h-4 text-rose-600" />
+          <span>{language === 'bn' ? 'শিক্ষক কাজের চাপ ও রুটিন ডিস্ট্রিবিউশন' : 'Teacher Workload & Routine Distribution'}</span>
         </h3>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-2xl border border-emerald-100">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+            <thead className="bg-emerald-50 text-emerald-800 text-[10px] uppercase font-black tracking-wider">
               <tr>
-                <th className="py-2.5 px-3">Teacher</th>
-                <th className="py-2.5 px-3">Department</th>
-                <th className="py-2.5 px-3">Weekly Periods</th>
-                <th className="py-2.5 px-3">Sessions Completed</th>
-                <th className="py-2.5 px-3">Attendance Days</th>
+                <th className="py-3.5 px-4">{language === 'bn' ? 'শিক্ষক' : 'Teacher'}</th>
+                <th className="py-3.5 px-4">{language === 'bn' ? 'বিভাগ' : 'Department'}</th>
+                <th className="py-3.5 px-4">{language === 'bn' ? 'সাপ্তাহিক পিরিয়ড' : 'Weekly Periods'}</th>
+                <th className="py-3.5 px-4">{language === 'bn' ? 'সম্পন্ন সেশন' : 'Sessions Done'}</th>
+                <th className="py-3.5 px-4">{language === 'bn' ? 'হাজিরা দিন' : 'Attendance'}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-emerald-100">
               {teacherWorkloads.map(({ teacher, weeklyPeriods, completedCount, attCount }) => (
-                <tr key={teacher.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-3">
-                    <span className="font-bold text-white block">{teacher.name}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">{teacher.employeeId}</span>
+                <tr key={teacher.id} className="hover:bg-emerald-50/50 transition-colors">
+                  <td className="py-4 px-4">
+                    <span className="font-black text-emerald-950 block leading-tight">{teacher.name}</span>
+                    <span className="text-[10px] text-emerald-600 font-mono font-bold">{teacher.employeeId}</span>
                   </td>
-                  <td className="py-3 px-3 text-slate-300">{teacher.department}</td>
-                  <td className="py-3 px-3 font-semibold text-indigo-400">{weeklyPeriods} periods</td>
-                  <td className="py-3 px-3 text-slate-300">{completedCount}</td>
-                  <td className="py-3 px-3 text-emerald-400 font-semibold">{attCount}</td>
+                  <td className="py-4 px-4 text-emerald-700 font-bold">{teacher.department}</td>
+                  <td className="py-4 px-4 font-black text-emerald-950">{weeklyPeriods} {language === 'bn' ? 'টি' : 'periods'}</td>
+                  <td className="py-4 px-4 text-emerald-800 font-bold">{completedCount}</td>
+                  <td className="py-4 px-4 text-rose-600 font-black">{attCount} {language === 'bn' ? 'দিন' : 'days'}</td>
                 </tr>
               ))}
             </tbody>

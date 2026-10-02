@@ -58,6 +58,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
 
   const pendingLeaves = leaveRequests.filter(l => l.status === 'PENDING');
   const pendingReports = adminReports.filter(r => r.status === 'SUBMITTED' || r.status === 'UNDER_REVIEW');
+  const pendingUsers = allUsers.filter(u => u.status === 'PENDING');
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16">
@@ -213,6 +214,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
           <div className="text-2xl font-black text-rose-600">{pendingLeaves.length}</div>
           <p className="text-[10px] text-emerald-700 mt-1">{language === 'bn' ? 'অনুমোদন প্রয়োজন' : 'Requires approval'}</p>
         </div>
+
+        {/* Pending User Approvals (NEW) */}
+        {pendingUsers.length > 0 && (
+          <div
+            onClick={() => onNavigateTab('teachers')}
+            className="p-4 rounded-3xl bg-amber-50 border-2 border-amber-400 hover:border-amber-500 shadow-md cursor-pointer transition-all animate-pulse"
+          >
+            <div className="flex items-center justify-between text-amber-900 text-xs mb-2">
+              <span className="font-black">{language === 'bn' ? 'নতুন আইডি অনুমোদন' : 'New ID Approvals'}</span>
+              <ShieldAlert className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="text-2xl font-black text-amber-700">{pendingUsers.length}</div>
+            <p className="text-[10px] text-amber-800 font-bold mt-1">
+              {language === 'bn' ? 'অপেক্ষা করছে' : 'Waiting for you'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* LIVE CLASSES MONITOR SNAPSHOT */}

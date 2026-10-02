@@ -4,30 +4,22 @@
  */
 
 import React, { useState } from 'react';
-import { UserCheck, Plus, Search, Mail, Phone, Calendar, Clock, X, Trash2 } from 'lucide-react';
+import { UserCheck, Plus, Search, Mail, Phone, Calendar, Clock, X, Trash2, XCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
 import { User } from '../../types';
 
 export const AdminEmployees: React.FC = () => {
-  const { allUsers, registerStaffUser, deleteUser } = useAuth();
-  const { attendanceRecords, leaveRequests } = useApp();
+  const { allUsers, approveUser, deleteUser } = useAuth();
+  const { attendanceRecords, leaveRequests, language } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<User | null>(null);
 
-  // Form fields
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [employeeId, setEmployeeId] = useState('');
-  const [designation, setDesignation] = useState('Administrative Assistant');
-  const [department, setDepartment] = useState('Administration');
-  const [phone, setPhone] = useState('+880 1711-');
+  const activeEmployees = allUsers.filter(u => u.role === 'EMPLOYEE' && u.status === 'ACTIVE');
+  const pendingEmployees = allUsers.filter(u => u.role === 'EMPLOYEE' && u.status === 'PENDING');
 
-  const employees = allUsers.filter(u => u.role === 'EMPLOYEE');
-
-  const filteredEmployees = employees.filter(e => {
+  const filteredEmployees = activeEmployees.filter(e => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -37,58 +29,74 @@ export const AdminEmployees: React.FC = () => {
     );
   });
 
-  const handleAddEmployee = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-
-    registerStaffUser({
-      name: name.trim(),
-      email: email.trim(),
-      role: 'EMPLOYEE',
-      employeeId: employeeId.trim() || `EMP-${Math.floor(100 + Math.random() * 900)}`,
-      designation: designation.trim(),
-      department: department.trim(),
-      phone: phone.trim()
-    });
-
-    setName('');
-    setEmail('');
-    setEmployeeId('');
-    setIsAddModalOpen(false);
-  };
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-200 pb-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <UserCheck className="w-6 h-6 text-amber-400" />
-            <span>Staff & Employees Directory</span>
+          <h1 className="text-2xl font-extrabold text-emerald-950 tracking-tight flex items-center gap-2">
+            <UserCheck className="w-6 h-6 text-amber-500" />
+            <span>{language === 'bn' ? 'কর্মচারী ও স্টাফ ডিরেক্টরি' : 'Staff & Employees Directory'}</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Manage administrative, operational, and office support staff.
+          <p className="text-xs text-emerald-700 mt-0.5">
+            {language === 'bn' ? 'প্রশাসনিক, অপারেশনাল এবং অফিস সাপোর্ট স্টাফদের তথ্য পরিচালনা করুন।' : 'Manage administrative, operational, and office support staff.'}
           </p>
         </div>
-
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-all shadow-md shadow-amber-600/30 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Employee</span>
-        </button>
       </div>
+
+      {/* PENDING APPROVALS SECTION */}
+      {pendingEmployees.length > 0 && (
+        <section className="p-6 rounded-3xl bg-amber-50 border-2 border-amber-200 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-2 text-amber-800">
+            <UserCheck className="w-5 h-5 text-amber-600" />
+            <h2 className="font-black text-sm uppercase tracking-wider">
+              {language === 'bn' ? 'অনুমোদনের অপেক্ষায় কর্মচারী' : 'Staff Awaiting Approval'} ({pendingEmployees.length})
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {pendingEmployees.map(user => (
+              <div key={user.id} className="p-4 rounded-2xl bg-white border border-amber-200 shadow-sm flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                    {user.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-emerald-950 text-xs">{user.name}</h4>
+                    <p className="text-[10px] text-emerald-700">{user.designation} • {user.phone}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => deleteUser(user.id)}
+                    className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                    title="Reject"
+                  >
+                    <XCircle className="w-4 h-4 text-rose-600" />
+                  </button>
+                  <button
+                    onClick={() => approveUser(user.id)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-md transition-all cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{language === 'bn' ? 'অনুমোদন করুন' : 'Approve'}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Search Bar */}
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Search employees by name, ID, or department..."
+          placeholder={language === 'bn' ? 'নাম, আইডি বা বিভাগ দিয়ে খুঁজুন...' : 'Search employees by name, ID, or department...'}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-emerald-200 text-xs text-emerald-950 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
         />
       </div>
 
@@ -96,75 +104,65 @@ export const AdminEmployees: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredEmployees.map(emp => {
           const presentDays = attendanceRecords.filter(a => a.userId === emp.id && a.status === 'PRESENT').length;
-          const pendingLeaves = leaveRequests.filter(l => l.userId === emp.id && l.status === 'PENDING').length;
+          const pendingLeavesCount = leaveRequests.filter(l => l.userId === emp.id && l.status === 'PENDING').length;
 
           return (
             <div
               key={emp.id}
-              className="p-5 rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between"
+              className="p-5 rounded-3xl bg-white border border-emerald-200 hover:border-amber-300 hover:shadow-lg transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-bold text-amber-400 text-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center font-black text-amber-600 text-lg">
                       {emp.name.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-sm">{emp.name}</h3>
-                      <span className="text-[11px] text-slate-400 block">{emp.designation}</span>
+                      <h3 className="font-bold text-emerald-950 text-sm leading-tight">{emp.name}</h3>
+                      <span className="text-[11px] text-emerald-600 block mt-0.5">{emp.designation}</span>
                     </div>
                   </div>
-
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      emp.isActive
-                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-rose-950 text-rose-400 border border-rose-500/30'
-                    }`}
-                  >
-                    {emp.isActive ? 'Active' : 'Inactive'}
-                  </span>
                 </div>
 
-                <div className="space-y-1.5 my-3 text-xs text-slate-300">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <span className="font-mono text-[11px] bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                <div className="space-y-2 my-4 text-[11px] text-emerald-800">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px] bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
                       {emp.employeeId}
                     </span>
-                    <span>{emp.department}</span>
+                    <span className="font-medium text-emerald-700">{emp.department}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-                    <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span className="truncate">{emp.email}</span>
                   </div>
                   {emp.phone && (
-                    <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-                      <Phone className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>{emp.phone}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-[11px] space-y-1.5">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>Attendance Logged</span>
-                    <span className="font-bold text-emerald-400">{presentDays} days</span>
+                <div className="p-3.5 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-[11px] space-y-2">
+                  <div className="flex items-center justify-between text-emerald-700">
+                    <span>{language === 'bn' ? 'হাজিরা রেকর্ড' : 'Attendance Logged'}</span>
+                    <span className="font-black text-emerald-950">{presentDays} {language === 'bn' ? 'দিন' : 'days'}</span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span>Pending Leave Requests</span>
-                    <span className="font-bold text-amber-400">{pendingLeaves}</span>
+                  <div className="flex items-center justify-between text-emerald-700">
+                    <span>{language === 'bn' ? 'অপেক্ষমাণ ছুটি' : 'Pending Leaves'}</span>
+                    <span className="font-black text-rose-600">{pendingLeavesCount}</span>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 font-mono">Staff Account</span>
+                <div className="mt-4 pt-4 border-t border-emerald-100 flex items-center justify-between">
+                  <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tight">{language === 'bn' ? 'স্টাফ অ্যাকাউন্ট' : 'Staff Account'}</span>
                   <button
                     onClick={() => setEmployeeToDelete(emp)}
-                    className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-1 text-[11px]"
-                    title="Delete employee"
+                    className="p-2 rounded-xl text-emerald-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-1.5 text-[11px] font-bold"
+                    title={language === 'bn' ? 'মুছে ফেলুন' : 'Delete employee'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete</span>
+                    <span>{language === 'bn' ? 'ডিলিট' : 'Delete'}</span>
                   </button>
                 </div>
               </div>
@@ -173,139 +171,48 @@ export const AdminEmployees: React.FC = () => {
         })}
       </div>
 
-      {/* Add Employee Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-sm font-bold text-white">Add New Staff Employee</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddEmployee} className="space-y-3 my-4">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-300 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Kamal Uddin"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="staff@school.edu"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">Employee ID</label>
-                  <input
-                    type="text"
-                    placeholder="EMP-102"
-                    value={employeeId}
-                    onChange={e => setEmployeeId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">Designation</label>
-                  <input
-                    type="text"
-                    value={designation}
-                    onChange={e => setDesignation(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">Department</label>
-                  <input
-                    type="text"
-                    value={department}
-                    onChange={e => setDepartment(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-300 mb-1">Phone Number</label>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div className="flex gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-xs font-semibold text-white shadow-md shadow-amber-600/30"
-                >
-                  Add Employee
-                </button>
-              </div>
-            </form>
-          </div>
+      {/* NO DATA STATE */}
+      {filteredEmployees.length === 0 && (
+        <div className="text-center py-20 bg-white border border-emerald-200 rounded-3xl">
+          <UserCheck className="w-12 h-12 text-emerald-200 mx-auto mb-3" />
+          <p className="text-emerald-900 font-bold">{language === 'bn' ? 'কোনো কর্মচারী খুঁজে পাওয়া যায়নি।' : 'No employees found.'}</p>
         </div>
       )}
 
       {/* CONFIRM DELETE EMPLOYEE MODAL */}
       {employeeToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0">
-                <Trash2 className="w-5 h-5 text-rose-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-emerald-950/40 backdrop-blur-sm">
+          <div className="bg-white border-2 border-rose-500 rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 text-rose-600">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0 border border-rose-200">
+                <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">Delete Employee Account?</h3>
-                <p className="text-xs text-slate-400">Remove {employeeToDelete.name} from school staff directory.</p>
+                <h3 className="font-black text-emerald-950 text-sm">{language === 'bn' ? 'অ্যাকাউন্ট মুছে ফেলবেন?' : 'Delete Employee Account?'}</h3>
+                <p className="text-xs text-emerald-700 mt-1">{language === 'bn' ? `আপনি কি নিশ্চিত যে ${employeeToDelete.name}-কে ডিরেক্টরি থেকে মুছে ফেলতে চান?` : `Remove ${employeeToDelete.name} from school staff directory?`}</p>
               </div>
             </div>
 
-            <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
-              <span className="font-semibold block text-white">{employeeToDelete.name}</span>
-              <span className="text-slate-400 block font-mono text-[11px]">{employeeToDelete.employeeId} • {employeeToDelete.designation}</span>
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-xs">
+              <span className="font-black block text-emerald-950">{employeeToDelete.name}</span>
+              <span className="text-emerald-700 block font-mono text-[11px] mt-0.5">{employeeToDelete.employeeId} • {employeeToDelete.designation}</span>
             </div>
 
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setEmployeeToDelete(null)}
-                className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                className="flex-1 py-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-200 cursor-pointer"
               >
-                Cancel
+                {language === 'bn' ? 'বাতিল' : 'Cancel'}
               </button>
               <button
                 onClick={() => {
                   deleteUser(employeeToDelete.id);
                   setEmployeeToDelete(null);
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-900/40 cursor-pointer"
+                className="flex-1 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-900/40 cursor-pointer"
               >
-                Confirm Delete
+                {language === 'bn' ? 'মুছে ফেলুন' : 'Confirm Delete'}
               </button>
             </div>
           </div>

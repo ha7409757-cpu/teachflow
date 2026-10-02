@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { UserRole } from '../../types';
+import { UserRole, ALL_CLASSES } from '../../types';
 import {
   Lock,
   User,
@@ -571,7 +571,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                     {language === 'bn' ? 'কোন কোন শ্রেণিতে ক্লাস নেন?' : 'Assigned Classes'}
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {['Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'].map(cls => {
+                    {ALL_CLASSES.map(cls => {
                       const isSelected = regClasses.includes(cls);
                       return (
                         <button

@@ -47,7 +47,7 @@ export const TeacherAttendance: React.FC = () => {
 
   // Student Attendance Form State
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
-  const [selectedClass, setSelectedClass] = useState<string>('Class 5');
+  const [selectedClass, setSelectedClass] = useState<string>(ALL_CLASSES[0]);
   const [selectedSection, setSelectedSection] = useState<string>('A');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 

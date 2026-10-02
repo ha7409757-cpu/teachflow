@@ -28,7 +28,7 @@ import {
   StudentDailyAttendance
 } from '../types';
 
-const STORAGE_PREFIX = 'teachflow_v1_';
+const STORAGE_PREFIX = 'teachflow_v2_';
 
 // Initial School Settings (Generic for fresh installation)
 export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
@@ -53,7 +53,7 @@ export const SEED_USERS: User[] = [
     email: 'admin@teachflow.edu.bd',
     name: 'System Administrator',
     role: 'ADMIN',
-    pin: '0000', // Default PIN for first login
+    pin: '1234', // Default PIN for first login
     employeeId: 'ADMIN-001',
     designation: 'Head of Institution',
     department: 'Administration',

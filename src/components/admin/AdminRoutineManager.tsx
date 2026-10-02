@@ -59,7 +59,7 @@ export const AdminRoutineManager: React.FC = () => {
   const [formDay, setFormDay] = useState<number>(0);
   const [formStartTime, setFormStartTime] = useState('10:00');
   const [formEndTime, setFormEndTime] = useState('10:45');
-  const [formClassId, setFormClassId] = useState('Class 5');
+  const [formClassId, setFormClassId] = useState(ALL_CLASSES[0]);
   const [formSection, setFormSection] = useState('A');
   const [formSubjectId, setFormSubjectId] = useState('English');
   const [formRoomId, setFormRoomId] = useState('Room 203');
@@ -91,7 +91,7 @@ export const AdminRoutineManager: React.FC = () => {
     setFormDay(selectedDay === 'ALL' ? 0 : selectedDay);
     setFormStartTime('10:00');
     setFormEndTime('10:45');
-    setFormClassId('Class 5');
+    setFormClassId(ALL_CLASSES[0]);
     setFormSection('A');
     setFormSubjectId('English');
     setFormRoomId('Room 203');

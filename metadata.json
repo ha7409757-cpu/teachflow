@@ -1,0 +1,6 @@
+{
+  "name": "TeachFlow",
+  "description": "Complete school staff, teacher & academic management system with class-end alarm, weekly CT & behavioral evaluation, Student of the Month awards, offline sync, and strict teacher privacy.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

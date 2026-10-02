@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TeachFlow</string>
+    <string name="title_activity_main">TeachFlow</string>
+    <string name="tagline">Smart School &amp; Class Management System</string>
+
+    <!-- Offline / Error Screen Strings -->
+    <string name="offline_title">ইন্টারনেট সংযোগ নেই</string>
+    <string name="offline_subtitle">No Internet Connection. Please check your WiFi or mobile data and try again.</string>
+    <string name="btn_retry">পুনরায় চেষ্টা করুন (Retry)</string>
+    <string name="loading">লোড হচ্ছে...</string>
+
+    <!-- Permissions -->
+    <string name="permission_camera_rationale">This app requires camera permission to scan attendance QR codes and upload documents.</string>
+    <string name="permission_storage_rationale">This app requires storage access to upload and download student certificates and reports.</string>
+</resources>

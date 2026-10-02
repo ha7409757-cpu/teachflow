@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Emerald Green Rounded Square Background -->
+    <path
+        android:fillColor="#047857"
+        android:pathData="M24,14h60a16,16 0 0,1 16,16v60a16,16 0 0,1 -16,16h-60a16,16 0 0,1 -16,-16v-60a16,16 0 0,1 16,-16z" />
+
+    <!-- Graduation Cap Crown / Base -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,34 L82,47 L54,60 L26,47 Z" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M38,53 L38,67 C38,73 70,73 70,67 L70,53 L54,61 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M78,49 L78,65" />
+
+    <!-- Ruby Red Badge with Sparkle Accent -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M78,28a10,10 0 1,0 20,0a10,10 0 1,0 -20,0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M88,23 L89.5,26.5 L93,28 L89.5,29.5 L88,33 L86.5,29.5 L83,28 L86.5,26.5 Z" />
+</vector>

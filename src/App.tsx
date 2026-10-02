@@ -13,6 +13,7 @@ import { Sidebar } from './components/common/Sidebar';
 import { BottomNav } from './components/common/BottomNav';
 import { ActiveClassModal } from './components/teacher/ActiveClassModal';
 import { QRScannerModal } from './components/teacher/QRScannerModal';
+import { LoginScreen } from './components/auth/LoginScreen';
 
 // Teacher Views
 import { TeacherHome } from './components/teacher/TeacherHome';
@@ -449,9 +450,27 @@ export default function App() {
         {showSplash ? (
           <SplashScreen onComplete={() => setShowSplash(false)} />
         ) : (
-          <MainLayout />
+          <AppContent />
         )}
       </AppProvider>
     </AuthProvider>
   );
+}
+
+const AppContent: React.FC = () => {
+  const { currentUser, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f7faf8] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-emerald-200 border-t-rose-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginScreen />;
+  }
+
+  return <MainLayout />;
 }

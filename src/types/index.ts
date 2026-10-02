@@ -17,9 +17,12 @@ export interface User {
   designation: string;
   department?: string;
   joiningDate?: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'PENDING';
   assignedClasses?: string[];
   assignedSubjects?: string[];
+  bio?: string;
+  experience?: string;
+  joinedAt?: string;
 }
 
 export interface SchoolSettings {

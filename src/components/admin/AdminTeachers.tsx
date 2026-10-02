@@ -174,6 +174,14 @@ export const AdminTeachers: React.FC = () => {
                 {/* Assigned Routine periods */}
                 <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-[11px] space-y-1.5">
                   <div className="flex items-center justify-between text-slate-400">
+                    <span>Assigned Classes</span>
+                    <span className="font-bold text-white truncate max-w-[120px]">
+                      {teacher.assignedClasses && teacher.assignedClasses.length > 0 
+                        ? teacher.assignedClasses.join(', ') 
+                        : 'None'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400">
                     <span>Weekly Classes</span>
                     <span className="font-bold text-white">{teacherRoutines.length} periods</span>
                   </div>
@@ -352,6 +360,36 @@ export const AdminTeachers: React.FC = () => {
                 <div>
                   <span className="text-slate-400 block text-[11px]">Privacy Level</span>
                   <span className="text-indigo-400 font-semibold">Strict Note Isolation</span>
+                </div>
+              </div>
+
+              {/* Bio & Experience */}
+              <div className="space-y-3 p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/20">
+                <div>
+                  <h5 className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-1">Experience & Expertise</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {selectedTeacher.experience || 'Experience details not provided.'}
+                  </p>
+                </div>
+                <div>
+                  <h5 className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-1">Biography / About</h5>
+                  <p className="text-xs text-slate-300 italic leading-relaxed">
+                    {selectedTeacher.bio || 'No personal bio provided.'}
+                  </p>
+                </div>
+                <div>
+                  <h5 className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-1">Primary Subjects</h5>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {selectedTeacher.assignedSubjects && selectedTeacher.assignedSubjects.length > 0 ? (
+                      selectedTeacher.assignedSubjects.map((s, idx) => (
+                        <span key={idx} className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] text-indigo-300 font-medium">
+                          {s}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-[10px] text-slate-500 italic">No specific subjects listed</span>
+                    )}
+                  </div>
                 </div>
               </div>
 

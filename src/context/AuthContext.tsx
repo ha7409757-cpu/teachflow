@@ -26,6 +26,8 @@ interface AuthContextType {
     employeeId?: string;
     assignedClasses?: string[];
     assignedSubjects?: string[];
+    bio?: string;
+    experience?: string;
   }) => Promise<{ success: boolean; user?: User; error?: string }>;
   registerStaffUser: (userData: Partial<User> & { name: string; email: string; role: UserRole }) => void;
   changePin: (oldPin: string, newPin: string) => Promise<{ success: boolean; error?: string }>;
@@ -35,6 +37,7 @@ interface AuthContextType {
   allUsers: User[];
   refreshUsers: () => void;
   deleteUser: (userId: string) => void;
+  approveUser: (userId: string) => void;
   canCreateAdmin: () => boolean;
 }
 
@@ -46,6 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const language = (localStorage.getItem('teachflow_lang') || 'bn') as 'bn' | 'en';
 
   const refreshUsers = () => {
     const users = storageService.getUsers();
@@ -63,18 +67,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (found) {
         setCurrentUser(found);
       } else {
-        // If saved user was deleted/invalid, reset to null for PIN login
+        // If saved user was deleted/invalid, reset to null
         setCurrentUser(null);
         localStorage.removeItem(AUTH_USER_KEY);
       }
-    } else {
-      // First visit: provide teacher_1 by default so immediate preview works, but user can log out/switch/register
-      const defaultTeacher = users.find(u => u.id === 'teacher_1') || users[0];
-      if (defaultTeacher) {
-        setCurrentUser(defaultTeacher);
-        localStorage.setItem(AUTH_USER_KEY, defaultTeacher.id);
-      }
     }
+    // No default auto-login for first visit to ensure security
     setIsLoading(false);
   }, []);
 
@@ -96,6 +94,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) {
       setIsLoading(false);
       return { success: false, error: 'কোনো অ্যাকাউন্ট খুঁজে পাওয়া যায়নি। দয়া করে সঠিক আইডি বা নাম দিন।' };
+    }
+
+    if (user.status === 'PENDING') {
+      setIsLoading(false);
+      return { 
+        success: false, 
+        error: language === 'bn' 
+          ? 'আপনার অ্যাকাউন্টটি অনুমোদনের অপেক্ষায় আছে। অ্যাডমিন অনুমোদন করলে আপনি লগইন করতে পারবেন।' 
+          : 'Your account is pending approval. Please wait for the Admin to activate it.' 
+      };
     }
 
     if (user.status === 'INACTIVE') {
@@ -163,16 +171,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       department: userData.department?.trim() || 'সাধারণ',
       employeeId: generatedEmpId,
       pin: userData.pin.trim(),
-      status: 'ACTIVE',
-      assignedClasses: userData.assignedClasses || ['Class 6', 'Class 7', 'Class 8'],
-      assignedSubjects: userData.assignedSubjects || ['সাধারণ বিষয়'],
-      joiningDate: new Date().toISOString().split('T')[0]
+      status: 'PENDING',
+      assignedClasses: userData.assignedClasses || [],
+      assignedSubjects: userData.assignedSubjects || [],
+      bio: userData.bio,
+      experience: userData.experience,
+      joiningDate: new Date().toISOString().split('T')[0],
+      joinedAt: new Date().toISOString()
     };
 
     storageService.addUser(newUser, newUser);
     refreshUsers();
-    setCurrentUser(newUser);
-    localStorage.setItem(AUTH_USER_KEY, newUser.id);
+    // Do NOT auto-login as account is PENDING
     setIsLoading(false);
     return { success: true, user: newUser };
   };
@@ -266,6 +276,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     refreshUsers();
   };
 
+  const approveUser = (userId: string) => {
+    const users = storageService.getUsers();
+    const user = users.find(u => u.id === userId);
+    if (user && user.status === 'PENDING') {
+      const updated = { ...user, status: 'ACTIVE' as const };
+      storageService.updateUser(updated, currentUser || undefined);
+      refreshUsers();
+    }
+  };
+
   // Rule 34: Exactly two Admin accounts allowed in the entire system
   const canCreateAdmin = (): boolean => {
     const admins = storageService.getUsers().filter(u => u.role === 'ADMIN');
@@ -290,6 +310,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         allUsers,
         refreshUsers,
         deleteUser,
+        approveUser,
         canCreateAdmin
       }}
     >

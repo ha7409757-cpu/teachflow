@@ -34,20 +34,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
   const [mode, setMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
 
   // Login state
-  const [selectedUserId, setSelectedUserId] = useState<string>(allUsers[0]?.id || '');
+  const [loginMethod, setLoginMethod] = useState<'SELECT' | 'MANUAL'>('SELECT');
+  const [manualIdentifier, setManualIdentifier] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [enteredPin, setEnteredPin] = useState<string>('');
   const [showPin, setShowPin] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Register state
   const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
   const [regRole, setRegRole] = useState<UserRole>('TEACHER');
   const [regPhone, setRegPhone] = useState('');
   const [regDesignation, setRegDesignation] = useState('সহকারী শিক্ষক');
   const [regDepartment, setRegDepartment] = useState('বিজ্ঞান ও গণিত');
+  const [regClasses, setRegClasses] = useState<string[]>([]);
+  const [regSubjects, setRegSubjects] = useState('');
+  const [regBio, setRegBio] = useState('');
+  const [regExperience, setRegExperience] = useState('');
   const [regPin, setRegPin] = useState('');
   const [regConfirmPin, setRegConfirmPin] = useState('');
   const [regError, setRegError] = useState<string | null>(null);
+  const [regSuccess, setRegSuccess] = useState(false);
 
   const selectedUser = allUsers.find(u => u.id === selectedUserId) || allUsers[0];
 
@@ -65,17 +73,30 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
   const handlePinLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!selectedUser) {
-      setLoginError(language === 'bn' ? 'দয়া করে একটি অ্যাকাউন্ট নির্বাচন করুন।' : 'Please select an account.');
-      return;
+    
+    let identifier = '';
+    
+    if (loginMethod === 'SELECT') {
+      if (!selectedUserId) {
+        setLoginError(language === 'bn' ? 'দয়া করে একটি অ্যাকাউন্ট নির্বাচন করুন।' : 'Please select an account.');
+        return;
+      }
+      identifier = selectedUserId;
+    } else {
+      if (!manualIdentifier.trim()) {
+        setLoginError(language === 'bn' ? 'দয়া করে আপনার আইডি বা ইমেইল লিখুন।' : 'Please enter your ID or Email.');
+        return;
+      }
+      identifier = manualIdentifier.trim();
     }
+
     if (!enteredPin) {
       setLoginError(language === 'bn' ? 'দয়া করে আপনার পিন লিখুন।' : 'Please enter your PIN.');
       return;
     }
 
     setLoginError(null);
-    const res = await loginWithPin(selectedUser.id, enteredPin);
+    const res = await loginWithPin(identifier, enteredPin);
     if (res.success) {
       setEnteredPin('');
       if (onSuccess) onSuccess();
@@ -115,15 +136,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
     const res = await registerUser({
       name: regName.trim(),
+      email: regEmail.trim(),
       phone: regPhone.trim(),
       role: regRole,
       designation: regDesignation.trim(),
       department: regDepartment.trim(),
-      pin: regPin.trim()
+      pin: regPin.trim(),
+      assignedClasses: regClasses,
+      assignedSubjects: regSubjects.split(',').map(s => s.trim()).filter(s => s !== ''),
+      bio: regBio.trim(),
+      experience: regExperience.trim()
     });
 
     if (res.success) {
-      if (onSuccess) onSuccess();
+      setRegSuccess(true);
     } else {
       setRegError(res.error || 'রেজিস্ট্রেশন ব্যর্থ হয়েছে।');
     }
@@ -185,63 +211,106 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         {/* ================= MODE: LOGIN ================= */}
         {mode === 'LOGIN' && (
           <div className="space-y-5">
-            {/* Account Selector */}
-            <div>
-              <label className="block text-xs font-bold text-emerald-900 mb-1.5">
-                {language === 'bn' ? '১. আপনার অ্যাকাউন্ট নির্বাচন করুন:' : '1. Select Your Account:'}
-              </label>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                {allUsers.map(user => {
-                  const isSelected = (selectedUser?.id || allUsers[0]?.id) === user.id;
-                  return (
-                    <button
-                      key={user.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedUserId(user.id);
-                        setLoginError(null);
-                        setEnteredPin('');
-                      }}
-                      className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
-                          : 'bg-white border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+            {/* Login Method Toggle */}
+            <div className="flex justify-center mb-2">
+              <div className="bg-emerald-50 p-1 rounded-xl border border-emerald-100 flex gap-1">
+                <button
+                  onClick={() => setLoginMethod('SELECT')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    loginMethod === 'SELECT' ? 'bg-white text-emerald-950 shadow-sm' : 'text-emerald-600'
+                  }`}
+                >
+                  {language === 'bn' ? 'তালিকা থেকে' : 'From List'}
+                </button>
+                <button
+                  onClick={() => setLoginMethod('MANUAL')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    loginMethod === 'MANUAL' ? 'bg-white text-emerald-950 shadow-sm' : 'text-emerald-600'
+                  }`}
+                >
+                  {language === 'bn' ? 'আইডি দিয়ে' : 'By ID'}
+                </button>
+              </div>
+            </div>
+
+            {/* Account Selector vs Manual Entry */}
+            {loginMethod === 'SELECT' ? (
+              <div>
+                <label className="block text-xs font-bold text-emerald-900 mb-1.5">
+                  {language === 'bn' ? '১. আপনার অ্যাকাউন্ট নির্বাচন করুন:' : '1. Select Your Account:'}
+                </label>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {allUsers.filter(u => u.status === 'ACTIVE').map(user => {
+                    const isSelected = selectedUserId === user.id;
+                    return (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedUserId(user.id);
+                          setLoginError(null);
+                          setEnteredPin('');
+                        }}
+                        className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
+                            : 'bg-white border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                            user.role === 'ADMIN'
+                              ? 'bg-rose-100 text-rose-700'
+                              : user.role === 'TEACHER'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {user.name.slice(0, 1)}
+                          </div>
+                          <div className="truncate">
+                            <span className="font-bold text-xs text-emerald-950 block truncate">
+                              {user.name}
+                            </span>
+                            <span className="text-[10px] text-emerald-700 block truncate">
+                              {user.designation} • {user.employeeId}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
                           user.role === 'ADMIN'
                             ? 'bg-rose-100 text-rose-700'
                             : user.role === 'TEACHER'
                             ? 'bg-emerald-100 text-emerald-800'
                             : 'bg-amber-100 text-amber-800'
                         }`}>
-                          {user.name.slice(0, 1)}
-                        </div>
-                        <div className="truncate">
-                          <span className="font-bold text-xs text-emerald-950 block truncate">
-                            {user.name}
-                          </span>
-                          <span className="text-[10px] text-emerald-700 block truncate">
-                            {user.designation} • {user.employeeId}
-                          </span>
-                        </div>
-                      </div>
-
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
-                        user.role === 'ADMIN'
-                          ? 'bg-rose-100 text-rose-700'
-                          : user.role === 'TEACHER'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {user.role === 'ADMIN' ? 'অ্যাডমিন' : user.role === 'TEACHER' ? 'শিক্ষক' : 'কর্মচারী'}
-                      </span>
-                    </button>
-                  );
-                })}
+                          {user.role === 'ADMIN' ? 'অ্যাডমিন' : user.role === 'TEACHER' ? 'শিক্ষক' : 'কর্মচারী'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-bold text-emerald-900 mb-1.5">
+                  {language === 'bn' ? '১. আপনার আইডি বা ইমেইল লিখুন:' : '1. Enter Your ID or Email:'}
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+                  <input
+                    type="text"
+                    value={manualIdentifier}
+                    onChange={(e) => {
+                      setManualIdentifier(e.target.value);
+                      setLoginError(null);
+                    }}
+                    placeholder={language === 'bn' ? 'যেমন: EMP-TCH-101 বা ইমেইল' : 'e.g. EMP-TCH-101 or Email'}
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-950 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* PIN Entry Display */}
             <div>
@@ -344,7 +413,33 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
         {/* ================= MODE: REGISTER ================= */}
         {mode === 'REGISTER' && (
-          <form onSubmit={handleRegister} className="space-y-4">
+          regSuccess ? (
+            <div className="py-8 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-black text-emerald-950">
+                  {language === 'bn' ? 'রেজিস্ট্রেশন সম্পন্ন হয়েছে!' : 'Registration Complete!'}
+                </h3>
+                <p className="text-sm text-emerald-700 leading-relaxed">
+                  {language === 'bn' 
+                    ? 'আপনার অ্যাকাউন্টটি অনুমোদনের জন্য অ্যাডমিনের কাছে পাঠানো হয়েছে। অ্যাডমিন অনুমোদন করার পর আপনি আপনার পিন দিয়ে লগইন করতে পারবেন।' 
+                    : 'Your account has been sent to the Admin for approval. You can login with your PIN once it is activated.'}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setMode('LOGIN');
+                  setRegSuccess(false);
+                }}
+                className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm transition-all shadow-md active:scale-[0.98]"
+              >
+                {language === 'bn' ? 'লগইন পেজে ফিরে যান' : 'Go to Login'}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <h3 className="text-sm font-bold text-emerald-950 mb-1">
                 {language === 'bn' ? 'নতুন অ্যাকাউন্ট নিবন্ধন ফর্ম' : 'Create Your Personal Profile'}
@@ -367,6 +462,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                 value={regName}
                 onChange={e => setRegName(e.target.value)}
                 placeholder={language === 'bn' ? 'যেমন: মোহাম্মদ আরিফুল ইসলাম' : 'e.g. John Doe'}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950 text-xs focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-xs font-bold text-emerald-900 mb-1">
+                {language === 'bn' ? 'জিমেইল / ইমেইল *' : 'Email Address *'}
+              </label>
+              <input
+                type="email"
+                required
+                value={regEmail}
+                onChange={e => setRegEmail(e.target.value)}
+                placeholder="yourname@gmail.com"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950 text-xs focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
               />
             </div>
@@ -453,6 +563,83 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
               </div>
             </div>
 
+            {/* Teaching Details - Conditional for Teachers */}
+            {(regRole === 'TEACHER' || regRole === 'ADMIN') && (
+              <div className="space-y-4 pt-2 border-t border-emerald-50">
+                <div>
+                  <label className="block text-xs font-bold text-emerald-900 mb-2">
+                    {language === 'bn' ? 'কোন কোন শ্রেণিতে ক্লাস নেন?' : 'Assigned Classes'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'].map(cls => {
+                      const isSelected = regClasses.includes(cls);
+                      return (
+                        <button
+                          key={cls}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setRegClasses(regClasses.filter(c => c !== cls));
+                            } else {
+                              setRegClasses([...regClasses, cls]);
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                            isSelected
+                              ? 'bg-rose-100 border-rose-400 text-rose-700'
+                              : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:border-emerald-300'
+                          }`}
+                        >
+                          {cls}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-emerald-900 mb-1">
+                    {language === 'bn' ? 'কি কি বিষয় পড়ান? (কমা দিয়ে লিখুন)' : 'Subjects (comma separated)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={regSubjects}
+                    onChange={e => setRegSubjects(e.target.value)}
+                    placeholder={language === 'bn' ? 'যেমন: গণিত, ইংরেজি, বিজ্ঞান' : 'e.g. Math, English'}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950 text-xs focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Bio & Experience */}
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-emerald-900 mb-1">
+                  {language === 'bn' ? 'অভিজ্ঞতা (কত বছর বা কোথায়)' : 'Experience'}
+                </label>
+                <input
+                  type="text"
+                  value={regExperience}
+                  onChange={e => setRegExperience(e.target.value)}
+                  placeholder={language === 'bn' ? 'যেমন: ৫ বছর বা প্রাক্তন শিক্ষক...' : 'e.g. 5 years...'}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950 text-xs focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-emerald-900 mb-1">
+                  {language === 'bn' ? 'আপনার সম্পর্কে কিছু লিখুন (Bio)' : 'Short Bio'}
+                </label>
+                <textarea
+                  rows={2}
+                  value={regBio}
+                  onChange={e => setRegBio(e.target.value)}
+                  placeholder={language === 'bn' ? 'আপনার দক্ষতা বা অন্য কোনো তথ্য...' : 'Your skills or other info...'}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-emerald-200 text-emerald-950 text-xs focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none resize-none"
+                />
+              </div>
+            </div>
+
             {/* Custom PIN Setup */}
             <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-3">
               <span className="text-xs font-black text-rose-700 block">
@@ -509,8 +696,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
               <span>{isLoading ? 'তৈরি করা হচ্ছে...' : 'অ্যাকাউন্ট তৈরি করুন ও লগইন করুন'}</span>
             </button>
           </form>
-        )}
-      </div>
+        )
+      )}
+    </div>
 
       {/* Footer Info */}
       <div className="text-center mt-6 text-xs text-emerald-700">

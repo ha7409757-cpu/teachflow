@@ -1,12 +1,12 @@
 // TeachFlow Service Worker for Offline Capability & PWA Installability
 const CACHE_NAME = 'teachflow-cache-v1';
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/apple-touch-icon.png'
+  './',
+  'index.html',
+  'manifest.json',
+  'pwa-192x192.png',
+  'pwa-512x512.png',
+  'apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (event) => {
   // Navigation requests: network first with cache fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => caches.match('index.html'))
     );
     return;
   }

@@ -9,8 +9,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="TeachFlow" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <meta property="og:title" content="TeachFlow" />
     <meta property="og:description" content="Complete school staff, teacher & academic management system with class-end alarm, weekly CT & behavioral evaluation, Student of the Month awards, offline sync, and strict teacher privacy." />
     <meta property="og:type" content="website" />
@@ -21,11 +21,11 @@
   </head>
   <body class="bg-emerald-950 text-emerald-50 antialiased selection:bg-emerald-500 selection:text-white">
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+          navigator.serviceWorker.register('sw.js').then(function(registration) {
             console.log('TeachFlow ServiceWorker registered successfully with scope: ', registration.scope);
           }, function(err) {
             console.log('TeachFlow ServiceWorker registration failed: ', err);

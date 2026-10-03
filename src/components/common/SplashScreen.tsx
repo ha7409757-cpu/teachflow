@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Globe, Sparkles } from 'lucide-react';
+import { GraduationCap, Sparkles } from 'lucide-react';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -28,7 +28,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Globe className="w-12 h-12 text-white" />
+          <GraduationCap className="w-12 h-12 text-white" />
           {/* Ruby Red Badge */}
           <motion.div
             className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-full bg-rose-600 border-2 border-white flex items-center justify-center shadow-md shadow-rose-600/30"

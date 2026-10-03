@@ -17,7 +17,7 @@ import {
   ShieldAlert,
   Sparkles,
   CheckCircle2,
-  Globe,
+  GraduationCap,
   Delete,
   Eye,
   EyeOff
@@ -160,7 +160,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
       {/* Branding Header */}
       <div className="text-center mb-6 max-w-md">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white border-2 border-rose-500 shadow-lg shadow-rose-500/10 mb-3">
-          <Globe className="w-8 h-8 text-rose-600" />
+          <GraduationCap className="w-8 h-8 text-rose-600" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight">
           {settings.schoolName || 'TeachFlow School'}

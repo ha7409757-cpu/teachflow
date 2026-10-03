@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import {
-  GraduationCap,
+  Globe,
   Bell,
   LogOut,
   ChevronDown,
@@ -82,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNotices }) => {
         {/* Brand & School info with Red-Green-White Identity */}
         <div className="flex items-center gap-2.5">
           <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-white border border-emerald-300 shadow-sm text-emerald-700 font-bold shrink-0">
-            <GraduationCap className="w-5 h-5" />
+            <Globe className="w-5 h-5 text-emerald-600" />
             {/* Red Circle Accent */}
             <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 border-2 border-white shadow-sm animate-pulse" />
           </div>
